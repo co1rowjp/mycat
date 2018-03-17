@@ -30,7 +30,7 @@ fn make_options() -> Options {
 fn print_file_contents(path: &str, _matches: &Matches) -> Result<(), String> {
     let file = try!(fs::File::open(path).map_err(|e| e.to_string()));
     let mut buffer = BufReader::new(file);
-    for (index, line) in buffer.by_ref().lines().enumerate() {
+    for (_index, line) in buffer.by_ref().lines().enumerate() {
         let l =  try!(line.map_err(|e| e.to_string()));
         println!("{}", l);
     }
@@ -43,7 +43,7 @@ fn main() {
 
     let opts = make_options();
 
-    let mut matches = match opts.parse(&args[1..]) {
+    let matches = match opts.parse(&args[1..]) {
         Ok(m) => { m }
         Err(f) => { panic!(f.to_string()) }
     };
@@ -58,8 +58,11 @@ fn main() {
         return;
     }
 
-    for filePath in &matches.free {
-        print_file_contents(&filePath, &matches).map_err(|e| print!("{}", e));
+    for file_path in &matches.free {
+        match print_file_contents(&file_path, &matches) {
+            Ok(()) => (),
+            Err(e) => print!("{}", e),
+        }
     }
 
     return;
