@@ -53,6 +53,12 @@ fn main() {
         return;
     }
 
+    if matches.opt_present("version") {
+        println!("mycat version 0.01");
+        println!("written by co1row");
+        return;
+    }
+
     if matches.free.len() == 0 {
         println!("not implemented.");
         return;
