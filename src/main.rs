@@ -4,6 +4,7 @@ use getopts::Matches;
 use std::env;
 use std::fs;
 use std::io::{BufReader, BufRead, Read};
+use std::io;
 
 fn print_usage(program: &str, opts: Options) {
     let brief = format!("Usage: {} FILE [options]", program);
@@ -27,9 +28,19 @@ fn make_options() -> Options {
     return opts;
 }
 
-fn print_file_contents(path: &str, _matches: &Matches) -> Result<(), String> {
+fn print_file_contents(path: &str, matches: &Matches) -> Result<(), String> {
     let file = try!(fs::File::open(path).map_err(|e| e.to_string()));
-    let mut buffer = BufReader::new(file);
+    let buffer = BufReader::new(file);
+    return print_from_buffer(buffer, matches);
+}
+
+fn print_stdin(matches: &Matches) -> Result<(), String> {
+    let stdin = io::stdin();
+    let buffer = BufReader::new(stdin);
+    return print_from_buffer(buffer, matches);
+}
+
+fn print_from_buffer<R: Read>(mut buffer: BufReader<R>, _matches: &Matches) -> Result<(), String> {
     for (_index, line) in buffer.by_ref().lines().enumerate() {
         let l =  try!(line.map_err(|e| e.to_string()));
         println!("{}", l);
@@ -60,7 +71,10 @@ fn main() {
     }
 
     if matches.free.len() == 0 {
-        println!("not implemented.");
+        match print_stdin(&matches) {
+            Ok(()) => (),
+            Err(e) => print!("{}", e),
+        }
         return;
     }
 
