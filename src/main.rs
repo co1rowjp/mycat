@@ -40,7 +40,8 @@ fn print_stdin(matches: &Matches) -> Result<(), String> {
     return print_from_buffer(buffer, matches);
 }
 
-fn print_from_buffer<R: Read>(mut buffer: BufReader<R>, _matches: &Matches) -> Result<(), String> {
+fn print_from_buffer<R: Read>(mut buffer: BufReader<R>, matches: &Matches) -> Result<(), String> {
+    let show_ends = matches.opt_present("E") || matches.opt_present("e") || matches.opt_present("A");
     for (_index, line) in buffer.by_ref().lines().enumerate() {
         let l =  try!(line.map_err(|e| e.to_string()));
         println!("{}", l);
