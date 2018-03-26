@@ -42,8 +42,21 @@ fn print_stdin(matches: &Matches) -> Result<(), String> {
 
 fn print_from_buffer<R: Read>(mut buffer: BufReader<R>, matches: &Matches) -> Result<(), String> {
     let show_ends = matches.opt_present("E") || matches.opt_present("e") || matches.opt_present("A");
-    for (_index, line) in buffer.by_ref().lines().enumerate() {
-        let l =  try!(line.map_err(|e| e.to_string()));
+    let show_line_number = matches.opt_present("n");
+    let show_line_number_non_blank = matches.opt_present("b");
+
+    for (index, line) in buffer.by_ref().lines().enumerate() {
+        let mut l =  try!(line.map_err(|e| e.to_string()));
+        if show_line_number_non_blank {
+            if l.len() > 0 {
+                l = format!("{:width$}  {}", index, l, width=5);
+            }
+        } else if show_line_number {
+            l = format!("{:width$}  {}", index, l, width=5);
+        }
+        if show_ends {
+            l = format!("{}$", l);
+        }
         println!("{}", l);
     }
     return Ok(());
