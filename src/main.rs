@@ -44,6 +44,7 @@ fn print_from_buffer<R: Read>(mut buffer: BufReader<R>, matches: &Matches) -> Re
     let show_ends = matches.opt_present("E") || matches.opt_present("e") || matches.opt_present("A");
     let show_line_number = matches.opt_present("n");
     let show_line_number_non_blank = matches.opt_present("b");
+    let show_tabs = matches.opt_present("T") || matches.opt_present("A") || matches.opt_present("t");
 
     for (index, line) in buffer.by_ref().lines().enumerate() {
         let mut l =  try!(line.map_err(|e| e.to_string()));
@@ -56,6 +57,9 @@ fn print_from_buffer<R: Read>(mut buffer: BufReader<R>, matches: &Matches) -> Re
         }
         if show_ends {
             l = format!("{}$", l);
+        }
+        if show_tabs {
+            l = l.replace("\t", "^I");
         }
         println!("{}", l);
     }
