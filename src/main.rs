@@ -18,11 +18,11 @@ fn make_options() -> Options {
     opts.optflag("e", "", "equivalent to -vE");
     opts.optflag("E", "show-ends", " display $ at end of each line");
     opts.optflag("n", "", "number all output lines");
-    opts.optflag("s", "squeeze-blank", "never more than one single blank line");
+    //opts.optflag("s", "squeeze-blank", "never more than one single blank line");
     opts.optflag("t", "", "equivalent to -vT");
     opts.optflag("T", "show-tabs", "display TAB characters as ^I");
     opts.optflag("u", "", "(ignored)");
-    opts.optflag("v", "show-nonprinting", "use ^ and M- notation, except for LFD and TAB");
+    //opts.optflag("v", "show-nonprinting", "use ^ and M- notation, except for LFD and TAB");
     opts.optflag("", "help", "display this help and exit");
     opts.optflag("", "version", "output version information and exit");
     return opts;
