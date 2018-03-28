@@ -18,7 +18,7 @@ fn make_options() -> Options {
     opts.optflag("e", "", "equivalent to -vE");
     opts.optflag("E", "show-ends", " display $ at end of each line");
     opts.optflag("n", "", "number all output lines");
-    //opts.optflag("s", "squeeze-blank", "never more than one single blank line");
+    opts.optflag("s", "squeeze-blank", "never more than one single blank line");
     opts.optflag("t", "", "equivalent to -vT");
     opts.optflag("T", "show-tabs", "display TAB characters as ^I");
     opts.optflag("u", "", "(ignored)");
@@ -45,23 +45,38 @@ fn print_from_buffer<R: Read>(mut buffer: BufReader<R>, matches: &Matches) -> Re
     let show_line_number = matches.opt_present("n");
     let show_line_number_non_blank = matches.opt_present("b");
     let show_tabs = matches.opt_present("T") || matches.opt_present("A") || matches.opt_present("t");
+    let squeeze_blank = matches.opt_present("s");
+    let mut prev_is_blank = false;
+    let mut line_number = 1;
 
-    for (index, line) in buffer.by_ref().lines().enumerate() {
+    for line in buffer.by_ref().lines() {
         let mut l =  try!(line.map_err(|e| e.to_string()));
+        let current_is_blank = l.len() == 0;
+
+        if squeeze_blank && prev_is_blank && current_is_blank {
+            continue;
+        }
+
         if show_line_number_non_blank {
-            if l.len() > 0 {
-                l = format!("{:width$}  {}", index, l, width=5);
+            if !current_is_blank {
+                l = format!("{:width$}  {}", line_number, l, width=5);
+                line_number = line_number + 1;
             }
         } else if show_line_number {
-            l = format!("{:width$}  {}", index, l, width=5);
+            l = format!("{:width$}  {}", line_number, l, width=5);
+            line_number = line_number + 1;
         }
+
         if show_ends {
             l = format!("{}$", l);
         }
+
         if show_tabs {
             l = l.replace("\t", "^I");
         }
+
         println!("{}", l);
+        prev_is_blank = current_is_blank;
     }
     return Ok(());
 }
